@@ -1,4 +1,5 @@
 
+import html
 import json
 
 import requests
@@ -8,6 +9,11 @@ from database.database import definir_feedback, definir_metadado, obter_metadado
 from core.logger import get_logger
 
 logger = get_logger()
+
+
+def _html(valor: object) -> str:
+    """Escapa dados das vagas antes de montar mensagens HTML do Telegram."""
+    return html.escape(str(valor), quote=True)
 
 
 def enviar_mensagem(texto: str, reply_markup: dict | None = None) -> bool:
@@ -99,7 +105,7 @@ def _linha_aviso_antiga(job) -> str:
     preenchida há tempos."""
     if not job.publicacao_antiga:
         return ""
-    return f"⚠️ <b>Postada {job.publicado_em_legivel}</b> — pode já estar preenchida.\n"
+    return f"⚠️ <b>Postada {_html(job.publicado_em_legivel)}</b> — pode já estar preenchida.\n"
 
 
 def notificar_vaga(job) -> bool:
@@ -108,22 +114,22 @@ def notificar_vaga(job) -> bool:
     #
     # Linha de publicação só aparece quando a fonte expõe isso (nem toda
     # expõe — ver Job.publicado_em / extrair_data_publicacao em job.py).
-    linha_publicacao = f"<b>Publicada:</b> {job.publicado_em_legivel}\n" if job.publicado_em else ""
-    linha_modalidade = f"<b>Modalidade:</b> {job.modalidade}\n" if job.modalidade else ""
+    linha_publicacao = f"<b>Publicada:</b> {_html(job.publicado_em_legivel)}\n" if job.publicado_em else ""
+    linha_modalidade = f"<b>Modalidade:</b> {_html(job.modalidade)}\n" if job.modalidade else ""
     texto = (
         f"🚨 <b>Nova vaga encontrada!</b>\n\n"
         f"{_linha_aviso_antiga(job)}"
         f"<b>Relevância:</b> {_linha_relevancia(job.relevancia)}\n"
-        f"<b>Motivo:</b> {job.motivo}\n"
-        f"<b>Empresa:</b> {job.empresa}\n"
-        f"<b>Cargo:</b> {job.titulo}\n"
-        f"<b>Nível:</b> {job.senioridade}\n"
-        f"<b>Local:</b> {job.local}\n"
+        f"<b>Motivo:</b> {_html(job.motivo)}\n"
+        f"<b>Empresa:</b> {_html(job.empresa)}\n"
+        f"<b>Cargo:</b> {_html(job.titulo)}\n"
+        f"<b>Nível:</b> {_html(job.senioridade)}\n"
+        f"<b>Local:</b> {_html(job.local)}\n"
         f"{linha_modalidade}"
-        f"<b>Site:</b> {job.site}\n"
+        f"<b>Site:</b> {_html(job.site)}\n"
         f"{linha_publicacao}\n"
         f"Encontrada agora\n\n"
-        f"<b>Link:</b>\n{job.link}"
+        f"<b>Link:</b>\n{_html(job.link)}"
     )
     return enviar_mensagem(texto, reply_markup=_teclado_feedback(job.id))
 
@@ -138,21 +144,21 @@ def notificar_vaga_exploratoria(job) -> bool:
     genérico o bastante pros dois antes de virar função só de um deles,
     então movida pra cá em vez de duplicada.
     """
-    linha_modalidade = f"<b>Modalidade:</b> {job.modalidade}\n" if job.modalidade else ""
+    linha_modalidade = f"<b>Modalidade:</b> {_html(job.modalidade)}\n" if job.modalidade else ""
     texto = (
         f"🧭 <b>Vaga exploratória (Portugal/Espanha)</b>\n\n"
         f"{_linha_aviso_antiga(job)}"
         f"<b>Relevância:</b> {_linha_relevancia(job.relevancia)}\n"
-        f"<b>Motivo:</b> {job.motivo}\n"
-        f"<b>Empresa:</b> {job.empresa}\n"
-        f"<b>Cargo:</b> {job.titulo}\n"
-        f"<b>Nível:</b> {job.senioridade}\n"
-        f"<b>Local:</b> {job.local}\n"
+        f"<b>Motivo:</b> {_html(job.motivo)}\n"
+        f"<b>Empresa:</b> {_html(job.empresa)}\n"
+        f"<b>Cargo:</b> {_html(job.titulo)}\n"
+        f"<b>Nível:</b> {_html(job.senioridade)}\n"
+        f"<b>Local:</b> {_html(job.local)}\n"
         f"{linha_modalidade}"
-        f"<b>Site:</b> {job.site}\n\n"
+        f"<b>Site:</b> {_html(job.site)}\n\n"
         f"Achada via busca por Portugal/Espanha — modalidade não confirmada "
         f"como remota, pode ser presencial ou híbrida. Confirma no link.\n\n"
-        f"<b>Link:</b>\n{job.link}"
+        f"<b>Link:</b>\n{_html(job.link)}"
     )
     return enviar_mensagem(texto, reply_markup=_teclado_feedback(job.id))
 
@@ -172,7 +178,7 @@ def montar_digest(vagas: list[tuple], rotulo_perfil: str) -> list[str]:
     — quebra em partes numeradas em vez de estourar/truncar."""
     linhas = [
         f'{"🧭" if exploratoria else "•"} {_linha_relevancia(relevancia or 0)} '
-        f'<a href="{link}">{titulo}</a> — {empresa}'
+        f'<a href="{_html(link)}">{_html(titulo)}</a> — {_html(empresa)}'
         for titulo, empresa, link, relevancia, exploratoria in vagas
     ]
 

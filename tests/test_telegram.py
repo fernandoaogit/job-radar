@@ -11,7 +11,7 @@ nenhum.
 
 import pytest
 
-from notifier.telegram import _parsear_callback_data, _teclado_feedback
+from notifier.telegram import _html, _parsear_callback_data, _teclado_feedback
 
 _ID_EXEMPLO = "d41d8cd98f00b204e9800998ecf8427e"  # md5 de exemplo, 32 chars
 
@@ -66,3 +66,7 @@ def test_ida_e_volta_teclado_para_parser():
 
     assert _parsear_callback_data(botao_positivo["callback_data"]) == (_ID_EXEMPLO, "positivo")
     assert _parsear_callback_data(botao_negativo["callback_data"]) == (_ID_EXEMPLO, "negativo")
+
+
+def test_html_escapa_dados_das_vagas():
+    assert _html('Empresa A & "B" <C>') == "Empresa A &amp; &quot;B&quot; &lt;C&gt;"
