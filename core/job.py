@@ -977,6 +977,7 @@ class RegrasFiltro:
     ferramentas_titulo: list[str]
     qualificadores_cargo: list[str]
     cidades: list[str]
+    keywords_excluidas: list[str] | None = None
     # Mercados aceitos pra vaga remota COM escopo geográfico explícito no
     # texto (ver Job.escopo_remoto/extrair_escopo_remoto). None = não checa
     # escopo nenhum (aceita qualquer remoto, comportamento de antes desse
@@ -1056,7 +1057,7 @@ _PESO_IDIOMA = 1
 # é o problema de "vaga tolerável demais" que motivou o deságio (volume
 # desprezível: 0,3% da base). Nada disso é filtro — a vaga ainda notifica,
 # só muda a posição no ranking (imediata vs. digest, topo vs. fundo).
-_NIVEIS_SENIORIDADE_ALVO = {"Júnior", "Pleno"}
+_NIVEIS_SENIORIDADE_ALVO = {"Pleno", "Sênior"}
 _NIVEIS_SENIORIDADE_ACIMA_DO_ALVO = {"Sênior", "Especialista", "Liderança"}
 
 
@@ -1281,6 +1282,10 @@ class Job:
         titulo_norm = _normalizar(self.titulo)
         local_norm = _normalizar(self.local)
         modalidade_norm = _normalizar(self.modalidade)
+        bate_exclusao = any(
+            _contem_termo(_normalizar(k), titulo_norm)
+            for k in (regras.keywords_excluidas or [])
+        )
 
         bate_forte = any(
             _contem_termo(_normalizar(k), titulo_norm) for k in regras.keywords_forte
@@ -1379,7 +1384,7 @@ class Job:
         )
 
         return _Avaliacao(
-            aprovada=bate_keyword and bate_cidade,
+            aprovada=bate_keyword and bate_cidade and not bate_exclusao,
             bate_forte=bate_forte,
             bate_ambiguo=bate_ambiguo,
             bate_ferramenta=bate_ferramenta,

@@ -7,42 +7,21 @@ load_dotenv()
 # Cargo forte: título que só existe mesmo em vaga de dados/BI, sem
 # possibilidade real de ser outra área.
 KEYWORDS_CARGO_FORTE = [
-    "Analista de Dados",
-    "Analista BI",
-    "Analista de BI",
-    "Business Intelligence",
-    "Data Analytics",
-    "Analista de Analytics",
-    "Data Analyst",
-    "Desenvolvedor BI",
-    "Consultor BI",
-    "Analista de Inteligência de Negócios",
-    "BI Developer",
-    "BI Analyst",
-    "Analista de Reporting",
-    "Analista de Inteligência de Mercado",
-    "Analista de Indicadores",
-    "Reporting Analyst",
-    "Insights Analyst",
-    "Data Insights Analyst",
-    "MIS Analyst",
-    "Analista de MIS",
-    "Assistente de BI",
-    "Auxiliar de BI",
-    "Analista de Inteligência Comercial",
-    "Data Specialist",
-    "Data Quality Analyst",
-    "Data Intelligence Analyst",
-    "BI & Analytics Analyst",
-    "Analytics Specialist",
-    "Especialista em Dados",
-    "Analista de Planejamento e Dados",
-    # "Datos" (espanhol) não é "Dados" (português) — nenhuma keyword em
-    # português cobre título em espanhol, mesmo sendo a mesma vaga. Faz
-    # sentido aqui no pipeline BR (não só em config_intl.py) porque
-    # LinkedInScraper já busca em Argentina/Chile (ver LOCATIONS_LINKEDIN).
-    "Analista de Datos",
-    "Analítica de Datos",
+    "Customer Success",
+    "Customer Success Manager",
+    "Customer Success Manager Analyst",
+    "Customer Success Specialist",
+    "Analista de Customer Success",
+    "Especialista de Customer Success",
+    "Gerente de Customer Success",
+    "Product Owner",
+    "Product Manager",
+    "Gerente de Produto",
+]
+
+KEYWORDS_EXCLUIDAS = [
+    "vendas", "sales", "telemarketing", "sdr", "bdr",
+    "pré-vendas", "pre-vendas", "inside sales", "closer",
 ]
 
 # Cargo ambíguo: título que também é usado em vaga sem nada a ver com
@@ -80,6 +59,10 @@ KEYWORDS_CARGO_AMBIGUO = [
     #       "engenheiro" fora. Decisão da usuária em 22/08.
     "Analyst",
 ]
+
+# O radar de Customer Success/Produto usa somente os cargos definidos acima;
+# não reaproveita as antigas regras amplas de Dados/BI.
+KEYWORDS_CARGO_AMBIGUO = []
 
 # Termo que precisa aparecer junto no título quando o cargo é ambíguo, pra
 # confirmar que é vaga de dados/BI e não de outra área qualquer.
@@ -139,8 +122,10 @@ TERMOS_CARGO_EXTRA = [
     # termos mais amplos que a keyword exata, mantidos por dar rede mais
     # larga na busca (a keyword em si é mais restrita, de propósito, pra
     # não gerar falso positivo no filtro de título).
-    "power bi",
-    "inteligência de mercado",
+    "customer experience",
+    "customer onboarding",
+    "customer operations",
+    "product operations",
 ]
 
 TERMOS_CARGO = sorted(set(k.lower() for k in KEYWORDS) | set(TERMOS_CARGO_EXTRA))
@@ -227,28 +212,7 @@ TERMOS_POR_CICLO = 10
 # Custo: LOCATIONS_LINKEDIN_CIDADES_PRESENCIAL e derivada daqui, entao
 # cada cidade e uma busca a mais por termo no LinkedIn. Sai de 11 cidades
 # para 8 — menos requisicao por ciclo E cobrindo Manaus, que faltava.
-CIDADES = [
-    "Remoto",
-    # As seis do requisito
-    "Campina Grande",
-    "João Pessoa",
-    "Recife",
-    "Natal",
-    "Caruaru",
-    "Manaus",
-    # Mantidas por decisao da usuaria, alem do requisito minimo
-    "Maceió",
-    "Aracaju",
-    # Fortaleza-CE: pedida em 21/08/2026, presencial e híbrida como as
-    # demais. Cuidado que ela exige: existem "Fortaleza de Minas" (MG),
-    # "Fortaleza dos Nogueiras" (MA) e "Fortaleza dos Valos" (RS) — as três
-    # batem o nome. Quem as barra é _UF_DA_CIDADE["fortaleza"] = "ce" em
-    # job.py, e ela só funciona pro formato do LinkedIn ("Fortaleza de
-    # Minas, Minas Gerais, Brazil") desde 5e91895, que ensinou a guarda a
-    # ler estado por extenso. Sem aquele commit, esta cidade entraria com
-    # três falsos positivos junto.
-    "Fortaleza",
-]
+CIDADES = ["Remoto", "São Paulo"]
 
 # MEDIDO: "Data Analyst @ Lisboa" e "Analista de Datos @ Madrid" reprovavam
 # na localização, não no cargo — CIDADES acima é whitelist só de cidade
@@ -413,7 +377,7 @@ INTERVALO_MINUTOS = int(os.getenv("INTERVALO_MINUTOS", 180))
 # perfil BR, incluindo exatamente a da OLX. No perfil INTERNACIONAL o
 # desconto continua certo, porque lá só valem mercados de língua portuguesa
 # e espanhola e a confirmação importa de verdade.
-LIMIAR_DIGEST_IMEDIATO = 4
+LIMIAR_DIGEST_IMEDIATO = 7
 
 # Hora UTC a partir da qual o digest diário pode sair (uma vez por perfil,
 # por dia — ver _enviar_digest_diario em main.py). A regra é "ainda não
