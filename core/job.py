@@ -978,6 +978,7 @@ class RegrasFiltro:
     qualificadores_cargo: list[str]
     cidades: list[str]
     keywords_excluidas: list[str] | None = None
+    senioridades_excluidas: list[str] | None = None
     # Mercados aceitos pra vaga remota COM escopo geográfico explícito no
     # texto (ver Job.escopo_remoto/extrair_escopo_remoto). None = não checa
     # escopo nenhum (aceita qualquer remoto, comportamento de antes desse
@@ -1286,6 +1287,7 @@ class Job:
             _contem_termo(_normalizar(k), titulo_norm)
             for k in (regras.keywords_excluidas or [])
         )
+        senioridade_excluida = self.senioridade in (regras.senioridades_excluidas or [])
 
         bate_forte = any(
             _contem_termo(_normalizar(k), titulo_norm) for k in regras.keywords_forte
@@ -1384,7 +1386,12 @@ class Job:
         )
 
         return _Avaliacao(
-            aprovada=bate_keyword and bate_cidade and not bate_exclusao,
+            aprovada=(
+                bate_keyword
+                and bate_cidade
+                and not bate_exclusao
+                and not senioridade_excluida
+            ),
             bate_forte=bate_forte,
             bate_ambiguo=bate_ambiguo,
             bate_ferramenta=bate_ferramenta,

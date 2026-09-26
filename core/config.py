@@ -14,6 +14,8 @@ KEYWORDS_CARGO_FORTE = [
     "Analista de Customer Success",
     "Especialista de Customer Success",
     "Gerente de Customer Success",
+    "Especialista de Éxito del Cliente",
+    "Gerente de Éxito del Cliente",
     "Product Owner",
     "Product Manager",
     "Gerente de Produto",
@@ -23,6 +25,8 @@ KEYWORDS_EXCLUIDAS = [
     "vendas", "sales", "telemarketing", "sdr", "bdr",
     "pré-vendas", "pre-vendas", "inside sales", "closer",
 ]
+
+SENIORIDADES_EXCLUIDAS = ["Júnior", "Estágio", "Trainee"]
 
 # Cargo ambíguo: título que também é usado em vaga sem nada a ver com
 # dados/BI (ex: "Business Analyst" e "Analista de Negócios" existem em

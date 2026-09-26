@@ -23,6 +23,7 @@ from core.config import (
     KEYWORDS_CARGO_FORTE,
     KEYWORDS_CARGO_AMBIGUO,
     KEYWORDS_EXCLUIDAS,
+    SENIORIDADES_EXCLUIDAS,
     QUALIFICADORES_DADOS,
     FERRAMENTAS_TITULO,
     QUALIFICADORES_CARGO,
@@ -112,6 +113,7 @@ _REGRAS_BR = RegrasFiltro(
     qualificadores_cargo=QUALIFICADORES_CARGO,
     cidades=CIDADES,
     keywords_excluidas=KEYWORDS_EXCLUIDAS,
+    senioridades_excluidas=SENIORIDADES_EXCLUIDAS,
     mercados_remoto_aceitos=MERCADOS_REMOTO_ACEITOS,
 )
 
@@ -127,6 +129,7 @@ _REGRAS_BR_IBERIA = RegrasFiltro(
     qualificadores_cargo=QUALIFICADORES_CARGO,
     cidades=CIDADES_EUROPA_IBERICA,
     keywords_excluidas=KEYWORDS_EXCLUIDAS,
+    senioridades_excluidas=SENIORIDADES_EXCLUIDAS,
 )
 
 # Revelo não entrou: o portal de vagas exige login pra navegar, não dá pra
