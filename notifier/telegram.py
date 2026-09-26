@@ -53,7 +53,14 @@ def enviar_mensagem(texto: str, reply_markup: dict | None = None) -> bool:
     except requests.HTTPError as e:
         status = e.response.status_code if e.response is not None else None
         motivo = e.response.reason if e.response is not None else "sem detalhe"
-        logger.error(f"Erro ao enviar mensagem no Telegram: HTTP {status} ({motivo})")
+        detalhe = ""
+        if e.response is not None:
+            try:
+                detalhe = e.response.json().get("description", "")
+            except ValueError:
+                detalhe = ""
+        sufixo = f": {detalhe}" if detalhe else ""
+        logger.error(f"Erro ao enviar mensagem no Telegram: HTTP {status} ({motivo}){sufixo}")
         return False
     except requests.RequestException as e:
         logger.error(
@@ -176,6 +183,8 @@ def montar_digest(vagas: list[tuple], rotulo_perfil: str) -> list[str]:
     ~93% do volume indo pro digest (ver LIMIAR_DIGEST_IMEDIATO em
     config.py), um dia cheio passa fácil dos 4096 caracteres do Telegram
     — quebra em partes numeradas em vez de estourar/truncar."""
+    # O limite precisa ser calculado sobre o HTML já escapado: '&' vira
+    # '&amp;' e aspas viram '&quot;', aumentando o tamanho efetivo enviado.
     linhas = [
         f'{"🧭" if exploratoria else "•"} {_linha_relevancia(relevancia or 0)} '
         f'<a href="{_html(link)}">{_html(titulo)}</a> — {_html(empresa)}'
