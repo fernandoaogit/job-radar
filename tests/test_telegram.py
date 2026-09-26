@@ -11,7 +11,12 @@ nenhum.
 
 import pytest
 
-from notifier.telegram import _html, _parsear_callback_data, _teclado_feedback
+from notifier.telegram import (
+    _html,
+    _parsear_callback_data,
+    _teclado_feedback,
+    montar_digest,
+)
 
 _ID_EXEMPLO = "d41d8cd98f00b204e9800998ecf8427e"  # md5 de exemplo, 32 chars
 
@@ -70,3 +75,19 @@ def test_ida_e_volta_teclado_para_parser():
 
 def test_html_escapa_dados_das_vagas():
     assert _html('Empresa A & "B" <C>') == "Empresa A &amp; &quot;B&quot; &lt;C&gt;"
+
+
+def test_digest_agrupa_por_familia_e_senioridade():
+    vagas = [
+        ("Product Manager Pleno", "Empresa PM", "https://x/1", 5, 0),
+        ("Customer Success Manager Sênior", "Empresa CSM", "https://x/2", 8, 0),
+        ("Product Owner Sênior", "Empresa PO", "https://x/3", 7, 0),
+    ]
+
+    digest = montar_digest(vagas, "Brasil")[0]
+
+    assert "Customer Success Manager</b> · <i>Sênior" in digest
+    assert "Product Owner</b> · <i>Sênior" in digest
+    assert "Product Manager</b> · <i>Pleno" in digest
+    assert digest.index("Customer Success Manager") < digest.index("Product Owner")
+    assert digest.index("Product Owner") < digest.index("Product Manager")

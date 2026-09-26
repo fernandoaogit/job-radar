@@ -1,6 +1,7 @@
 
 import html
 import json
+import re
 
 import requests
 
@@ -175,6 +176,42 @@ def notificar_vaga_exploratoria(job) -> bool:
 # "caractere" em contagem de bytes.
 _LIMITE_CHARS_DIGEST = 3500
 
+_ORDEM_FAMILIAS_DIGEST = {
+    "Customer Success Manager": 0,
+    "Customer Success Analyst / Specialist": 1,
+    "Product Owner": 2,
+    "Product Manager": 3,
+    "Outros cargos relacionados": 4,
+}
+_ORDEM_SENIORIDADES_DIGEST = {"Sênior": 0, "Pleno": 1, "Não informada": 2}
+
+
+def _familia_digest(titulo: str) -> str:
+    """Agrupa títulos equivalentes para o resumo ficar legível."""
+    titulo_normalizado = str(titulo).lower()
+    if "product owner" in titulo_normalizado or re.search(r"\bpo\b", titulo_normalizado):
+        return "Product Owner"
+    if "product manager" in titulo_normalizado or "gerente de produto" in titulo_normalizado:
+        return "Product Manager"
+    if (
+        "customer success manager" in titulo_normalizado
+        or "gerente de customer success" in titulo_normalizado
+        or "gerente de éxito del cliente" in titulo_normalizado
+    ):
+        return "Customer Success Manager"
+    if "customer success" in titulo_normalizado or "éxito del cliente" in titulo_normalizado:
+        return "Customer Success Analyst / Specialist"
+    return "Outros cargos relacionados"
+
+
+def _senioridade_digest(titulo: str) -> str:
+    titulo_normalizado = str(titulo).lower()
+    if re.search(r"\b(sênior|senior|sr)\b", titulo_normalizado):
+        return "Sênior"
+    if re.search(r"\b(pleno|pl)\b", titulo_normalizado):
+        return "Pleno"
+    return "Não informada"
+
 
 def montar_digest(vagas: list[tuple], rotulo_perfil: str) -> list[str]:
     """Monta o texto do digest diário (item 08) a partir do que
@@ -185,11 +222,29 @@ def montar_digest(vagas: list[tuple], rotulo_perfil: str) -> list[str]:
     — quebra em partes numeradas em vez de estourar/truncar."""
     # O limite precisa ser calculado sobre o HTML já escapado: '&' vira
     # '&amp;' e aspas viram '&quot;', aumentando o tamanho efetivo enviado.
-    linhas = [
-        f'{"🧭" if exploratoria else "•"} {_linha_relevancia(relevancia or 0)} '
-        f'<a href="{_html(link)}">{_html(titulo)}</a> — {_html(empresa)}'
-        for titulo, empresa, link, relevancia, exploratoria in vagas
-    ]
+    grupos: dict[tuple[str, str], list[str]] = {}
+    for titulo, empresa, link, relevancia, exploratoria in vagas:
+        familia = _familia_digest(titulo)
+        senioridade = _senioridade_digest(titulo)
+        linha = (
+            f'{"🧭" if exploratoria else "•"} {_linha_relevancia(relevancia or 0)} '
+            f'<a href="{_html(link)}">{_html(titulo)}</a> — {_html(empresa)}'
+        )
+        grupos.setdefault((familia, senioridade), []).append(linha)
+
+    linhas = []
+    for (familia, senioridade), itens in sorted(
+        grupos.items(),
+        key=lambda grupo: (
+            _ORDEM_FAMILIAS_DIGEST[grupo[0][0]],
+            _ORDEM_SENIORIDADES_DIGEST[grupo[0][1]],
+        ),
+    ):
+        linhas.append(
+            f"<b>{_html(familia)}</b> · <i>{_html(senioridade)}</i> "
+            f"({len(itens)} vaga(s))"
+        )
+        linhas.extend(itens)
 
     partes: list[list[str]] = []
     parte_atual: list[str] = []
@@ -206,7 +261,7 @@ def montar_digest(vagas: list[tuple], rotulo_perfil: str) -> list[str]:
     total_partes = len(partes)
     mensagens = []
     for i, parte in enumerate(partes, start=1):
-        cabecalho = f"📋 <b>Digest diário — {rotulo_perfil}</b> ({len(vagas)} vaga(s))"
+        cabecalho = f"📋 <b>Digest diário — {_html(rotulo_perfil)}</b> ({len(vagas)} vaga(s))"
         if total_partes > 1:
             cabecalho += f" — parte {i}/{total_partes}"
         mensagens.append(cabecalho + "\n\n" + "\n".join(parte))
