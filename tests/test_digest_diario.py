@@ -265,16 +265,16 @@ def test_a_vaga_da_olx_chega_na_hora_e_nao_no_digest():
     from core.perfis import PERFIL_BR
 
     vaga = Job(
-        titulo="Analista de Dados Pleno (Vaga Afirmativa para Pessoas Com Deficiência)",
+        titulo="Customer Success Manager Pleno (Vaga Afirmativa para Pessoas Com Deficiência)",
         empresa="Grupo OLX",
-        local="Não informado",
+            local="Remoto (São Paulo, SP)",
         link="https://vemsergrupoolx.gupy.io/job/eyJqb2JJZCI6MTI0MTQ3MTAsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=",
         site="Gupy",
         publicado_em="2026-09-09",
         modalidade="Remoto",
     )
     assert vaga.combina_com(PERFIL_BR.regras), "a vaga tem que continuar sendo aprovada"
-    assert vaga.pontuar_relevancia(PERFIL_BR.regras) == 6, (
+    assert vaga.pontuar_relevancia(PERFIL_BR.regras) == 7, (
         "se a nota mudou, a decisão de limiar foi tomada com outro número"
     )
     assert vaga.pontuar_relevancia(PERFIL_BR.regras) >= LIMIAR_DIGEST_IMEDIATO, (

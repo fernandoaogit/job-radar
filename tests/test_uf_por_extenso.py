@@ -22,7 +22,7 @@ from core.perfis import PERFIL_BR
 
 def _vaga(local: str, modalidade: str = "Presencial") -> Job:
     return Job(
-        titulo="Analista de Dados",
+        titulo="Customer Success Manager Pleno",
         empresa="Empresa",
         local=local,
         link="https://www.linkedin.com/jobs/view/" + local,
@@ -74,17 +74,11 @@ def test_homonima_com_estado_por_extenso_e_barrada():
     assert not _vaga("Campina Grande do Sul, Paraná, Brazil").combina_com(PERFIL_BR.regras)
 
 
-def test_a_cidade_certa_continua_passando():
-    """A outra metade: apertar a guarda não pode barrar a vaga de verdade."""
+def test_sao_paulo_continua_passando_com_estado_por_extenso():
+    """O estado agora é restrito a SP, inclusive por extenso."""
     for local in [
-        "Campina Grande, Paraíba, Brazil",
-        "Recife, Pernambuco, Brazil",
-        "Natal, Rio Grande do Norte, Brazil",
-        "Manaus, Amazonas, Brazil",
-        "Maceió, Alagoas, Brazil",
-        "Aracaju, Sergipe, Brazil",
-        "João Pessoa, Paraíba, Brazil",
-        "Caruaru, Pernambuco, Brazil",
+        "São Paulo, São Paulo, Brazil",
+        "Campinas, São Paulo, Brazil",
     ]:
         assert _vaga(local).combina_com(PERFIL_BR.regras), local
 
@@ -113,6 +107,5 @@ def test_homonimas_de_fortaleza_sao_barradas(local):
     "Fortaleza",
 ])
 @pytest.mark.parametrize("modalidade", ["Híbrido", "Presencial"])
-def test_fortaleza_de_verdade_passa(local, modalidade):
-    """A outra metade: barrar homônima não pode barrar a cidade pedida."""
-    assert _vaga(local, modalidade).combina_com(PERFIL_BR.regras)
+def test_fortaleza_de_verdade_fica_fora_do_estado_aceito(local, modalidade):
+    assert not _vaga(local, modalidade).combina_com(PERFIL_BR.regras)

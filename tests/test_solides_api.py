@@ -43,7 +43,7 @@ VAGA_API = {
     "state": {"id": 22, "name": "Santa Catarina", "code": "SC"},
     "jobType": "presencial",
     "homeOffice": False,
-    "createdAt": "2026-08-28",
+    "createdAt": "2026-09-30",
     "redirectLink": "https://somasolution.solides.jobs/vacancies/912529?origem=portal",
     "seniority": [{"id": 4, "name": "Junior", "level": None}],
     "description": "<h2>Analista de Dados</h2>",
@@ -56,7 +56,7 @@ def test_converte_a_vaga_real_da_api():
     assert job.empresa == "SOMA SOLUTION"
     assert job.local == "Chapecó - SC"
     assert job.modalidade == "Presencial"
-    assert job.publicado_em == "2026-08-28"
+    assert job.publicado_em == "2026-09-30"
     assert job.site == "Solides"
 
 
@@ -71,7 +71,7 @@ def test_data_ja_vem_no_formato_certo():
     """createdAt vem como "2026-08-28", sem hora -- ao contrario da Gupy, que
     manda ISO completo e precisa de corte."""
     job = montar_job(VAGA_API)
-    assert job.publicado_em_legivel == "28/08/2026"
+    assert job.publicado_em_legivel == "30/09/2026"
     assert job.publicacao_antiga is False
 
 
@@ -102,19 +102,19 @@ def test_vaga_sem_o_essencial_e_descartada(faltando):
 # ------------- o mapeamento tem que respeitar as regras de negocio -------------
 
 @pytest.mark.parametrize("cidade, sigla, jobtype, aprovada", [
-    ("Fortaleza", "CE", "presencial", True),
-    ("Recife", "PE", "presencial", True),
+    ("São Paulo", "SP", "presencial", True),
+    ("Campinas", "SP", "presencial", True),
     ("Chapecó", "SC", "presencial", False),        # fora das 9 cidades
-    ("São Paulo", "SP", "hibrido", False),
-    ("Curitiba", "PR", "remoto", True),            # Brasil remoto de qualquer lugar
+    ("São Paulo", "SP", "hibrido", True),
+    ("Curitiba", "PR", "remoto", False),
     ("Campina Grande", "PR", "presencial", False), # HOMONIMA: a do Parana
-    ("Campina Grande", "PB", "presencial", True),  # a de verdade
+    ("Campinas", "SP", "presencial", True),
     ("VITORIA", "ES", "presencial", False),        # a API as vezes manda em CAIXA ALTA
 ])
 def test_o_local_montado_respeita_as_regras(cidade, sigla, jobtype, aprovada):
     job = montar_job({
         **VAGA_API,
-        "title": "Analista de Dados",
+        "title": "Customer Success Manager Pleno",
         "city": {"name": cidade},
         "state": {"code": sigla},
         "jobType": jobtype,
@@ -133,7 +133,7 @@ def test_o_job_montado_e_um_job_de_verdade():
 
 # --------------------- onde parar de paginar (medido) ---------------------
 
-HOJE = date(2026, 8, 30)
+HOJE = date(2026, 10, 2)
 
 
 def _pagina(*idades_em_dias):
@@ -503,5 +503,3 @@ def test_cada_ciclo_recomeca_a_lista():
     s.respostas = {"analista de dados": [[_job(1)]]}
     s.buscar_vagas()
     assert s._incompletos == []
-
-

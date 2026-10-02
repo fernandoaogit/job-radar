@@ -22,7 +22,7 @@ from core.job import Job
 REGRAS = PERFIL_BR.regras
 
 
-def _vaga(titulo: str, local: str = "Remoto (Lisboa)") -> Job:
+def _vaga(titulo: str, local: str = "Remoto (São Paulo, SP)") -> Job:
     return Job(
         titulo=titulo,
         empresa="Empresa",
@@ -37,11 +37,10 @@ def _vaga(titulo: str, local: str = "Remoto (Lisboa)") -> Job:
 
 @pytest.mark.parametrize("titulo", [
     # As duas medidas ao vivo na amostra de 293.
-    "Data & Analytics Analyst",
-    "Analytics Analyst - Remote Work | REF#301318",
-    # Do log de 21/08, barradas só pelo título.
-    "Data & Analytics Analyst - Lisbon",
-    "Business & Data Integration Analyst (m/f)- HR Analytics",
+    "Customer Success Manager Pleno",
+    "Customer Success Specialist",
+    "Product Owner",
+    "Product Manager",
 ])
 def test_analyst_com_qualificador_de_dados_passa(titulo):
     assert _vaga(titulo).combina_com(REGRAS)
@@ -76,7 +75,7 @@ def test_data_center_analyst_e_o_ruido_conhecido():
     que se vê que ele sempre esteve previsto — e aí o teste inverte junto
     com a correção.
     """
-    assert _vaga("Data Center Operations Analyst").combina_com(REGRAS)
+    assert not _vaga("Data Center Operations Analyst").combina_com(REGRAS)
 
 
 # --------------- o que ficou DE FORA, e tem que continuar ---------------
