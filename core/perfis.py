@@ -115,6 +115,7 @@ _REGRAS_BR = RegrasFiltro(
     keywords_excluidas=KEYWORDS_EXCLUIDAS,
     senioridades_excluidas=SENIORIDADES_EXCLUIDAS,
     mercados_remoto_aceitos=MERCADOS_REMOTO_ACEITOS,
+    estados_aceitos=["sp"],
 )
 
 # Eixo secundário (Ibéria): mesma regra de cargo, cidade europeia em vez de

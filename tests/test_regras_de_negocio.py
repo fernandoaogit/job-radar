@@ -57,7 +57,7 @@ CIDADES_ACEITAS = [
 # ---------------------------------------------------------------- BRASIL
 
 @pytest.mark.parametrize("modalidade", ["Híbrido", "Presencial"])
-@pytest.mark.parametrize("cidade, uf", CIDADES_ACEITAS)
+@pytest.mark.parametrize("cidade, uf", [("São Paulo", "SP"), ("Campinas", "SP")])
 def test_br_hibrido_e_presencial_nas_cidades_aceitas(cidade, uf, modalidade):
     local = f"{cidade} - {uf}"
     assert _vaga("Analista de Dados", local, modalidade).combina_com(PERFIL_BR.regras)
@@ -78,11 +78,11 @@ def test_br_variacoes_de_escrita_da_cidade(local):
 
 @pytest.mark.parametrize("modalidade", ["Híbrido", "Presencial"])
 @pytest.mark.parametrize("local", [
-    "São Paulo - SP", "Belo Horizonte, MG", "Salvador - BA",
+    "Belo Horizonte, MG", "Salvador - BA",
     "Rio de Janeiro, RJ", "Curitiba - PR", "Brasília, DF",
     "Porto Alegre - RS",
-    # Estavam em CIDADES por engano e aceitavam hibrida/presencial
-    # fora da regra -- ver MEDIDO em config.py.
+    # Fora do estado de São Paulo não entra, mesmo quando a cidade era
+    # anteriormente aceita por uma regra mais ampla.
     "Jaboatão dos Guararapes - PE", "Teresina - PI",
     "São Luís - MA", "Petrolina - PE",
 ])
@@ -91,13 +91,18 @@ def test_br_hibrido_e_presencial_fora_das_cidades_e_rejeitado(local, modalidade)
 
 
 @pytest.mark.parametrize("local", [
-    "Remoto", "Remoto (São Paulo, SP)", "Remoto (Manaus, AM)",
-    "Remoto - Brasil", "Remote, Brazil", "Remoto (Belo Horizonte, MG)",
+    "Remoto", "Remoto (São Paulo, SP)", "Remoto - Brasil", "Remote, Brazil",
 ])
-def test_br_remoto_no_brasil_e_aceito_de_qualquer_cidade(local):
-    """Remoto nao tem restricao de cidade -- a regra de CIDADES vale so
-    pra hibrido/presencial."""
+def test_br_remoto_sem_local_externo_ou_em_sao_paulo_e_aceito(local):
     assert _vaga("Analista de Dados", local, "Remoto").combina_com(PERFIL_BR.regras)
+
+
+@pytest.mark.parametrize("local", [
+    "Remoto (Florianópolis, SC)", "Remoto (Belo Horizonte, MG)",
+    "Remoto (Curitiba, PR)", "Remote - Portugal",
+])
+def test_br_remoto_ancorado_fora_de_sao_paulo_e_rejeitado(local):
+    assert not _vaga("Analista de Dados", local, "Remoto").combina_com(PERFIL_BR.regras)
 
 
 @pytest.mark.parametrize("local", [

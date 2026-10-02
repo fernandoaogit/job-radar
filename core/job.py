@@ -562,7 +562,7 @@ def _uf_declarada(local_norm: str) -> str | None:
     fontes usam de verdade ("Natal - RN", "Recife, PE", "Recife/PE").
     None quando nenhum pedaco e uma sigla de UF."""
     for pedaco in re.split(r"[,\-–—/]", local_norm):
-        pedaco = pedaco.strip(" .")
+        pedaco = pedaco.strip(" .()")
         if pedaco in _SIGLAS_UF_BRASIL:
             return pedaco
         if pedaco in _NOME_DO_ESTADO:
@@ -986,6 +986,10 @@ class RegrasFiltro:
     # Lista vazia é diferente de None: significa "só aceita remoto SEM
     # escopo declarado", rejeitando todo mercado explícito.
     mercados_remoto_aceitos: list[str] | None = None
+    # Estados brasileiros aceitos para vagas presenciais/híbridas e para
+    # vagas remotas que trazem uma cidade/UF explícita no local. None mantém
+    # o comportamento sem restrição de estado (perfil internacional).
+    estados_aceitos: list[str] | None = None
     # MEDIDO: perfil internacional não exigia espanhol/português na vaga em
     # si — só nos TERMOS de busca (ex: "data analyst spanish speaker"), que
     # nunca eram checados de novo depois. "Senior Data Analyst"/"Data
@@ -1330,9 +1334,28 @@ class Job:
         quer_remoto = any(_normalizar(c) in _FLAGS_REMOTO for c in regras.cidades)
         bate_remoto = quer_remoto and _confirma_remoto(modalidade_norm, local_norm)
 
+        # O LinkedIn marca a vaga remota, mas conserva no card a cidade da
+        # empresa (ex.: "Florianópolis, SC"). Para o perfil de São Paulo,
+        # essa âncora geográfica não pode ser ignorada. Remoto sem cidade/UF
+        # explícita continua aceito; quando há UF, ela precisa estar na lista.
+        estado_local = _uf_declarada(local_norm)
+        estados_aceitos_norm = {
+            _normalizar(estado) for estado in (regras.estados_aceitos or [])
+        }
+        if bate_remoto and estados_aceitos_norm and estado_local:
+            bate_remoto = estado_local in estados_aceitos_norm
+
         # Calculado uma vez só e reaproveitado nos dois gates abaixo
         # (mercado aceito e idioma exigido) — os dois leem o mesmo escopo.
         escopos = self.escopo_remoto if bate_remoto else set()
+
+        # O perfil de São Paulo não deve receber remoto explicitamente
+        # restrito a outro país/mercado. Escopo vazio ("Remoto" puro) segue
+        # aceito, porque não informa uma localização incompatível.
+        if bate_remoto and estados_aceitos_norm and escopos:
+            escopos_norm = {_normalizar(escopo) for escopo in escopos}
+            if "brasil" not in escopos_norm:
+                bate_remoto = False
 
         # MEDIDO: "Remote — US only", "Remote — India", "Remote — Portugal" e
         # "Remote — Brazil only" passavam todos igual, porque até aqui só
@@ -1378,7 +1401,10 @@ class Job:
         # _cidade_confere: nome batido nao basta quando o texto declara uma
         # UF que contradiz a cidade (ver _UF_DA_CIDADE — "Campina Grande do
         # Sul - PR" nao e Campina Grande/PB).
-        bate_cidade = bate_remoto or any(
+        bate_cidade = bate_remoto or (
+            bool(estados_aceitos_norm)
+            and estado_local in estados_aceitos_norm
+        ) or any(
             _contem_termo(_normalizar(c), local_norm)
             and _cidade_confere(_normalizar(c), local_norm)
             for c in regras.cidades
