@@ -25,7 +25,7 @@ on:
   # daqui), e exige o computador ligado -- entao voltou pro automatico.
   # Um lugar por vez, sempre: ver a nota do data/jobs.db acima.
   schedule:
-    - cron: "0 */3 * * *"
+    - cron: "0 */4 * * *"
   workflow_dispatch: {}
 
 concurrency:
