@@ -304,7 +304,7 @@ LOCATIONS_LINKEDIN = ["Brazil"]
 # "Espanha" FICA como está: foi medido e resolve (9 de 10 na Espanha, 215
 # vagas no histórico). Argentina/Chile/Portugal se escrevem igual nos dois
 # idiomas. Ou seja: só muda o que está comprovadamente quebrado.
-LOCATIONS_LINKEDIN_REMOTO_APENAS = ["Brasil", "Brazil"] #["Argentina", "Chile", "Mexico", "Colombia", "Espanha", "Portugal"]
+LOCATIONS_LINKEDIN_REMOTO_APENAS = ["Argentina", "Chile", "Mexico", "Colombia", "Espanha", "Portugal"]
 
 # MEDIDO: a passada nacional acima (location="Brazil") varre o país inteiro
 # e só sobra o que bate em CIDADES depois do filtro — pra termo concorrido
