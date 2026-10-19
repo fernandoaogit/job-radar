@@ -26,7 +26,7 @@ KEYWORDS_EXCLUIDAS = [
     "pré-vendas", "pre-vendas", "inside sales", "closer",
 ]
 
-SENIORIDADES_EXCLUIDAS = ["Júnior", "Estágio", "Trainee"]
+SENIORIDADES_EXCLUIDAS = ["Júnior", "Jr", "Estágio", "Trainee"]
 
 # Cargo ambíguo: título que também é usado em vaga sem nada a ver com
 # dados/BI (ex: "Business Analyst" e "Analista de Negócios" existem em
@@ -106,7 +106,7 @@ QUALIFICADORES_CARGO = [
     "consultant",
 ]
 
-KEYWORDS = KEYWORDS_CARGO_FORTE + KEYWORDS_CARGO_AMBIGUO
+KEYWORDS = KEYWORDS_CARGO_FORTE #+ KEYWORDS_CARGO_AMBIGUO
 
 # Termos de busca enviados a cada site. Ficam separados das KEYWORDS de
 # propósito: TERMOS_BUSCA é a rede ampla (o que é pesquisado em cada site,
@@ -174,11 +174,14 @@ TERMOS_BUSCA = TERMOS_CARGO + TERMOS_FERRAMENTA
 # de 18 min desde que o Indeed saiu, então cabe — antes disso, com 37 min,
 # não caberia. É essa folga que torna a mudança possível agora.
 TERMOS_PRIORITARIOS = [
-    "analista de dados",
-    "analista de bi",
-    "business intelligence",
-    "data analyst",
-    "power bi",
+   # "analista de dados",
+   # "analista de bi",
+   # "business intelligence",
+   # "data analyst",
+   # "power bi",
+    "customer success manager",
+    "product owner"
+    "Product manager",
 ]
 
 # Medido: os TERMOS_BUSCA inteiros (hoje 42) rodando em TODO ciclo é o que
@@ -301,7 +304,7 @@ LOCATIONS_LINKEDIN = ["Brazil"]
 # "Espanha" FICA como está: foi medido e resolve (9 de 10 na Espanha, 215
 # vagas no histórico). Argentina/Chile/Portugal se escrevem igual nos dois
 # idiomas. Ou seja: só muda o que está comprovadamente quebrado.
-LOCATIONS_LINKEDIN_REMOTO_APENAS = ["Argentina", "Chile", "Mexico", "Colombia", "Espanha", "Portugal"]
+LOCATIONS_LINKEDIN_REMOTO_APENAS = ["Brasil", "Brazil"] #["Argentina", "Chile", "Mexico", "Colombia", "Espanha", "Portugal"]
 
 # MEDIDO: a passada nacional acima (location="Brazil") varre o país inteiro
 # e só sobra o que bate em CIDADES depois do filtro — pra termo concorrido
