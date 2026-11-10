@@ -53,7 +53,7 @@ from core.config import (  # noqa: F401
 # termos largos do perfil ("spanish speaker" sozinho) NÃO foram testados. A
 # proteção do qualificador é sobre o TÍTULO e independe do termo que achou a
 # vaga, então não deve mudar — mas isso é raciocínio, não medição.
-KEYWORDS_CARGO_AMBIGUO_INTL = ["Analyst"]
+KEYWORDS_CARGO_AMBIGUO_INTL = []
 
 # NÃO entraram, e por quê (medido na mesma amostra):
 #   "Especialista" -> 0 vagas a mais. Mesmo resultado do teste no perfil BR.
@@ -69,30 +69,19 @@ KEYWORDS_CARGO_AMBIGUO_INTL = ["Analyst"]
 # Cargo em múltiplos idiomas — vaga internacional pode ter o anúncio escrito
 # em inglês, português ou espanhol, dependendo de quem contratou.
 KEYWORDS_INTL = [
-    "Data Analyst",
-    "Business Intelligence",
-    "BI Analyst",
-    "Data Analytics",
-    "Data Specialist",
-    "Analista de Dados",
-    "Business Analyst",
-    # Nomenclatura em espanhol
-    "Analista de Datos",
-    "Analítica de Datos",
-    "Analista de Inteligencia de Negocios",
-    "Especialista en Datos",
-    "Analista de Business Intelligence",
-    "Analista de Reportes",
-    # Eixo separado: Data Annotation / AI Evaluator — não é análise de
-    # dados, é rotular/avaliar dado pra treinar IA, mas é um nicho remoto
-    # que contrata muito por idioma (PT-BR/ES) e paga em dólar, então entra
-    # como categoria própria de cargo, não mistura com as de análise.
-    "Data Annotator",
-    "Data Annotation",
-    "AI Evaluator",
-    "AI Trainer",
-    "Data Labeler",
-    "Search Quality Rater",
+    # O perfil internacional segue a mesma lista de interesse do perfil Brasil.
+    "Customer Success",
+    "Customer Success Manager",
+    "Customer Success Manager Analyst",
+    "Customer Success Specialist",
+    "Analista de Customer Success",
+    "Especialista de Customer Success",
+    "Gerente de Customer Success",
+    "Especialista de Éxito del Cliente",
+    "Gerente de Éxito del Cliente",
+    "Product Owner",
+    "Product Manager",
+    "Gerente de Produto",
 ]
 
 # Termos de busca: cargo + sinal de idioma (português/espanhol/bilíngue) ou
@@ -100,6 +89,10 @@ KEYWORDS_INTL = [
 # "data analyst" sozinho aqui — isso é o mundo inteiro sem filtro nenhum de
 # idioma, a maioria fora do nosso alcance.
 TERMOS_BUSCA_INTL = [
+    "customer success spanish speaker",
+    "customer success portuguese speaker",
+    "product manager spanish speaker",
+    "product manager portuguese speaker",
     "data analyst spanish speaker",
     "data analyst spanish speaking",
     "data analyst portuguese speaker",
