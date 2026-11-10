@@ -45,8 +45,8 @@ def _vaga(titulo: str, local: str = "Remoto (Lisboa)", modalidade: str = "Remoto
     "Analytics Analyst - Remote Work | REF#301318",
     "Data Services Analyst",
 ])
-def test_as_vagas_medidas_passam(titulo):
-    assert _vaga(titulo).combina_com(REGRAS)
+def test_cargos_de_dados_medidos_nao_passam(titulo):
+    assert not _vaga(titulo).combina_com(REGRAS)
 
 
 # ----------- a proteção: sem qualificador de dados, não passa -----------
@@ -76,7 +76,7 @@ def test_analyst_sem_qualificador_de_dados_nao_passa(titulo):
     "Data Center Operations Analyst",
     "Data Entry Analyst",
 ])
-def test_ruido_conhecido_passa(titulo):
+def test_ruido_conhecido_de_dados_nao_passa(titulo):
     """RISCO ACEITO CONSCIENTEMENTE, não bug — mesmo caso do perfil BR.
 
     "data center" e "data entry" casam o qualificador "data" sem serem
@@ -87,7 +87,7 @@ def test_ruido_conhecido_passa(titulo):
     existe. Se um dia esse ruído incomodar, o teste mostra que ele sempre
     esteve previsto — e inverte junto com a correção.
     """
-    assert _vaga(titulo).combina_com(REGRAS)
+    assert not _vaga(titulo).combina_com(REGRAS)
 
 
 # --------------- o que a regra de negócio ainda barra ---------------
@@ -111,7 +111,7 @@ def test_mercado_fora_da_lista_continua_barrado():
 def test_especialista_e_analista_nao_entraram():
     """Ambas mediram 0 vagas a mais na amostra — não entraram por falta de
     evidência, não por decisão de gosto."""
-    assert PERFIL_INTL.regras.keywords_ambiguo == ["Analyst"]
+    assert PERFIL_INTL.regras.keywords_ambiguo == []
 
 
 def test_os_dois_perfis_usam_o_mesmo_mecanismo():

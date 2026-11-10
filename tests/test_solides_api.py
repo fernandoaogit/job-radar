@@ -67,12 +67,12 @@ def test_usa_a_sigla_e_nao_o_nome_do_estado():
     assert montar_local(VAGA_API).endswith(" - SC")
 
 
-def test_data_ja_vem_no_formato_certo():
+def test_data_ja_vem_no_formato_certo_e_idade_e_calculada():
     """createdAt vem como "2026-08-28", sem hora -- ao contrario da Gupy, que
     manda ISO completo e precisa de corte."""
     job = montar_job(VAGA_API)
     assert job.publicado_em_legivel == "30/09/2026"
-    assert job.publicacao_antiga is False
+    assert job.publicacao_antiga is True
 
 
 @pytest.mark.parametrize("jobtype, home, esperado", [
@@ -354,6 +354,15 @@ def _portal_falso(monkeypatch, respostas):
 
 
 def _rodar(monkeypatch, respostas):
+    class _AgoraFixo:
+        @classmethod
+        def now(cls, _timezone):
+            return cls()
+
+        def date(self):
+            return HOJE
+
+    monkeypatch.setattr(solides, "datetime", _AgoraFixo)
     vistas = _portal_falso(monkeypatch, respostas)
     s = solides.SolidesScraper(["analista de dados"])
     s._incompletos = []

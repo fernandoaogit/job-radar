@@ -119,7 +119,7 @@ def test_br_remoto_de_mercado_nao_aceito_e_rejeitado(local):
     "Remote - Latin America", "Remote - Colombia", "Buenos Aires, Argentina",
 ])
 def test_intl_remoto_em_mercado_aceito_e_aceito(local):
-    assert _vaga("Data Analyst", local, "Remoto").combina_com(PERFIL_INTL.regras)
+    assert _vaga("Product Manager", local, "Remoto").combina_com(PERFIL_INTL.regras)
 
 
 @pytest.mark.parametrize("modalidade", ["Híbrido", "Presencial"])
@@ -130,7 +130,7 @@ def test_intl_remoto_em_mercado_aceito_e_aceito(local):
 def test_intl_hibrido_e_presencial_sempre_rejeitado(local, modalidade):
     """Do exterior so interessa vaga remota -- nem mesmo em Portugal ou
     Espanha vale presencial/hibrida."""
-    assert not _vaga("Data Analyst", local, modalidade).combina_com(PERFIL_INTL.regras)
+    assert not _vaga("Product Manager", local, modalidade).combina_com(PERFIL_INTL.regras)
 
 
 @pytest.mark.parametrize("local", [
@@ -139,13 +139,13 @@ def test_intl_hibrido_e_presencial_sempre_rejeitado(local, modalidade):
     "Remote - India", "Remote - United Kingdom",
 ])
 def test_intl_remoto_de_mercado_de_lingua_inglesa_e_rejeitado(local):
-    assert not _vaga("Data Analyst", local, "Remoto").combina_com(PERFIL_INTL.regras)
+    assert not _vaga("Product Manager", local, "Remoto").combina_com(PERFIL_INTL.regras)
 
 
 def test_intl_titulo_hibrido_vence_a_classificacao_da_fonte():
     """O filtro nativo do LinkedIn as vezes marca como remota uma vaga que
     o proprio anuncio chama de hibrida -- o titulo vence."""
-    vaga = _vaga("Data Analyst (Analista de Datos) - Hybrid", "Madrid, Spain", "Remoto")
+    vaga = _vaga("Product Manager - Hybrid", "Madrid, Spain", "Remoto")
     assert vaga.modalidade == "Híbrido"
     assert not vaga.combina_com(PERFIL_INTL.regras)
 
@@ -153,8 +153,8 @@ def test_intl_titulo_hibrido_vence_a_classificacao_da_fonte():
 def test_intl_remoto_sem_mercado_declarado_exige_idioma_no_titulo():
     """Sem pais declarado nao da pra saber o mercado -- ai o titulo precisa
     dizer o idioma. Sem nenhum dos dois sinais, a vaga nao entra."""
-    assert _vaga("Data Analyst (Spanish speaker)", "Remote - Worldwide", "Remoto").combina_com(PERFIL_INTL.regras)
-    assert not _vaga("Data Analyst", "Remote - Worldwide", "Remoto").combina_com(PERFIL_INTL.regras)
+    assert _vaga("Product Manager (Spanish speaker)", "Remote - Worldwide", "Remoto").combina_com(PERFIL_INTL.regras)
+    assert not _vaga("Product Manager", "Remote - Worldwide", "Remoto").combina_com(PERFIL_INTL.regras)
 
 
 # ------------------------------------------------------------------ CARGO
