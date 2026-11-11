@@ -25,6 +25,7 @@ from notifier.telegram import (
     processar_feedback_pendente,
 )
 from core.perfis import FREQUENCIA_ALTA, PERFIS, Perfil
+from core.job import Job
 from utils.filtro import filtrar_vagas
 from core.logger import get_logger
 
@@ -218,10 +219,30 @@ def _enviar_digest_diario(perfil: Perfil):
         definir_metadado(chave, hoje.isoformat())
         return
 
-    if enviar_digest(vagas_pendentes, perfil.nome):
+    vagas_aceitas = [
+        vaga for vaga in vagas_pendentes
+        if Job(
+            titulo=vaga[0], empresa=vaga[1], local="", link=vaga[2], site="Digest"
+        ).combina_cargo(perfil.regras)
+    ]
+    removidas = len(vagas_pendentes) - len(vagas_aceitas)
+
+    if not vagas_aceitas:
         marcar_digest_enviado(perfil.chave)
         definir_metadado(chave, hoje.isoformat())
-        logger.info(f"[{perfil.nome}] Digest diário enviado: {len(vagas_pendentes)} vaga(s).")
+        logger.info(
+            f"[{perfil.nome}] Digest sem vagas após revalidar os cargos; "
+            f"{removidas} item(ns) antigo(s) removido(s) da fila."
+        )
+        return
+
+    if enviar_digest(vagas_aceitas, perfil.nome):
+        marcar_digest_enviado(perfil.chave)
+        definir_metadado(chave, hoje.isoformat())
+        logger.info(
+            f"[{perfil.nome}] Digest diário enviado: {len(vagas_aceitas)} vaga(s); "
+            f"{removidas} item(ns) fora do perfil removido(s) da fila."
+        )
     else:
         # Não marca metadado nem limpa a fila — tenta de novo no próximo
         # ciclo (ver enviar_digest/marcar_digest_enviado: preferir duplicar

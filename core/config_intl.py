@@ -84,76 +84,16 @@ KEYWORDS_INTL = [
     "Gerente de Produto",
 ]
 
-# Termos de busca: cargo + sinal de idioma (português/espanhol/bilíngue) ou
-# +sinal de mercado (LATAM, Spanish Market). Não faz sentido buscar só
-# "data analyst" sozinho aqui — isso é o mundo inteiro sem filtro nenhum de
-# idioma, a maioria fora do nosso alcance.
-TERMOS_BUSCA_INTL = [
+# O perfil internacional pesquisa somente os cargos que podem ser enviados.
+# Os termos puros cobrem vagas já limitadas aos países configurados; as
+# combinações de idioma encontram anúncios globais que aceitam português ou
+# espanhol sem reintroduzir cargos de Dados/BI na coleta.
+TERMOS_BUSCA_INTL = sorted(set(k.lower() for k in KEYWORDS_INTL) | {
     "customer success spanish speaker",
     "customer success portuguese speaker",
     "product manager spanish speaker",
     "product manager portuguese speaker",
-    "data analyst spanish speaker",
-    "data analyst spanish speaking",
-    "data analyst portuguese speaker",
-    "data analyst portuguese speaking",
-    "bilingual data analyst spanish",
-    "bilingual data analyst portuguese",
-    "business intelligence spanish speaker",
-    "business intelligence spanish speaking",
-    "business intelligence portuguese speaker",
-    "business intelligence portuguese speaking",
-    "remote data analyst latam",
-    "remote data analyst latin america",
-    "data analyst spanish market",
-    "business intelligence spanish markets",
-    "analista de datos remoto",
-    # MEDIDO ao vivo: vaga real ("Business Analyst (Colombia) - Remote",
-    # Connect Tech+Talent) aparece em location=Colombia&f_WT=2 pro termo
-    # bare "business analyst" — testei "spanish speaker", "business
-    # intelligence spanish speaker", "remote data analyst latin america" e
-    # "latam" contra a mesma vaga, location e filtro remoto: nenhum achou
-    # (o anúncio não repete nenhuma dessas frases). O comentário original
-    # lá em cima ("não faz sentido buscar só 'data analyst' sozinho, é o
-    # mundo inteiro sem idioma") não vale AQUI: todo termo desta lista já
-    # roda escopado por país (LOCATIONS_INTL) + remoto (f_WT=2) — nunca é
-    # busca global. E o filtro de idioma pós-busca (RegrasFiltro.
-    # idiomas_exigidos) só entra em jogo quando a vaga NÃO declara mercado
-    # nenhum no texto — quando o local já é um país aceito (ex: Colômbia),
-    # o PAÍS é o sinal, dispensa achar "spanish"/"portuguese" no título
-    # (mesma regra que já vale pro resto do filtro, ver job.py). Termo de
-    # cargo puro, escopado por país aceito, é seguro e fecha o vazamento:
-    # KEYWORDS_INTL aprova "Business Analyst"/"Data Analyst"/"Business
-    # Intelligence" como cargo forte, mas nenhum dos dois primeiros nunca
-    # era BUSCADO sozinho — só entravam por acidente, dentro de uma frase
-    # combinada.
-    "business analyst",
-    "data analyst",
-    "business intelligence",
-    # Eixo Data Annotation / AI Evaluator
-    "data annotation spanish speaker",
-    "data annotation portuguese speaker",
-    "ai evaluator spanish",
-    "ai evaluator portuguese",
-    "ai trainer portuguese speaker",
-    "ai trainer spanish speaker",
-    "remote data annotator latam",
-    # Termos "soltos" (idioma/mercado sem cargo emparelhado na própria
-    # busca) — diferente dos de cima, que sempre combinam cargo+idioma numa
-    # frase só. MEDIDO: zero ocorrência de "Spanish"/"Español"/"LATAM" como
-    # termo próprio no projeto — toda vaga que anuncia a vaga com o idioma
-    # em destaque ("Spanish Speaker — Data Analytics Role", "LATAM Remote
-    # Team") e não bate exatamente numa das frases combinadas acima ficava
-    # invisível pra busca. Não é o mesmo risco do comentário lá em cima
-    # (buscar só "data analyst" sozinho, sem NENHUM filtro de idioma) — aqui
-    # é o oposto, idioma sem cargo na busca, e o cargo continua sendo
-    # exigido depois por KEYWORDS_INTL antes de qualquer notificação.
-    "spanish speaker",
-    "spanish speaking",
-    "portuguese and spanish",
-    "spanish market",
-    "latam",
-]
+})
 
 # MEDIDO: filtro de cargo (KEYWORDS_INTL) nunca checou idioma — a exigência
 # de espanhol/português vivia só nos TERMOS de busca acima, que casam

@@ -1280,6 +1280,46 @@ class Job:
         """
         return self._avaliar(regras).aprovada
 
+    def combina_cargo(self, regras: RegrasFiltro) -> bool:
+        """Confere somente o cargo e suas exclusões atuais.
+
+        O digest usa esta regra para revalidar vagas que entraram na fila
+        antes de uma mudança de perfil. Assim, um cargo removido deixa de ser
+        enviado mesmo que já estivesse salvo como pendente.
+        """
+        bate_forte, bate_ambiguo, bate_ferramenta, bate_exclusao, senioridade_excluida = (
+            self._avaliar_cargo(regras)
+        )
+        return (
+            (bate_forte or bate_ambiguo or bate_ferramenta)
+            and not bate_exclusao
+            and not senioridade_excluida
+        )
+
+    def _avaliar_cargo(self, regras: RegrasFiltro) -> tuple[bool, bool, bool, bool, bool]:
+        titulo_norm = _normalizar(self.titulo)
+        bate_exclusao = any(
+            _contem_termo(_normalizar(k), titulo_norm)
+            for k in (regras.keywords_excluidas or [])
+        )
+        senioridade_excluida = self.senioridade in (regras.senioridades_excluidas or [])
+        bate_forte = any(
+            _contem_termo(_normalizar(k), titulo_norm) for k in regras.keywords_forte
+        )
+        bate_ambiguo = any(
+            _normalizar(k) in titulo_norm for k in regras.keywords_ambiguo
+        ) and any(
+            _contem_termo(_normalizar(q), titulo_norm, aceitar_plural=True)
+            for q in regras.qualificadores_dados
+        )
+        bate_ferramenta = any(
+            _normalizar(f) in titulo_norm for f in regras.ferramentas_titulo
+        ) and any(
+            _contem_termo(_normalizar(q), titulo_norm, aceitar_plural=True)
+            for q in regras.qualificadores_cargo
+        )
+        return bate_forte, bate_ambiguo, bate_ferramenta, bate_exclusao, senioridade_excluida
+
     def _avaliar(self, regras: RegrasFiltro) -> _Avaliacao:
         """Faz a conta completa uma vez só — combina_com() e
         pontuar_relevancia() leem o mesmo resultado, em vez de cada um
@@ -1287,30 +1327,13 @@ class Job:
         titulo_norm = _normalizar(self.titulo)
         local_norm = _normalizar(self.local)
         modalidade_norm = _normalizar(self.modalidade)
-        bate_exclusao = any(
-            _contem_termo(_normalizar(k), titulo_norm)
-            for k in (regras.keywords_excluidas or [])
-        )
-        senioridade_excluida = self.senioridade in (regras.senioridades_excluidas or [])
-
-        bate_forte = any(
-            _contem_termo(_normalizar(k), titulo_norm) for k in regras.keywords_forte
-        )
-
-        bate_ambiguo = any(
-            _normalizar(k) in titulo_norm for k in regras.keywords_ambiguo
-        ) and any(
-            _contem_termo(_normalizar(q), titulo_norm, aceitar_plural=True)
-            for q in regras.qualificadores_dados
-        )
-
-        # Espelho da regra acima: ferramenta no título só vale com cargo junto.
-        bate_ferramenta = any(
-            _normalizar(f) in titulo_norm for f in regras.ferramentas_titulo
-        ) and any(
-            _contem_termo(_normalizar(q), titulo_norm, aceitar_plural=True)
-            for q in regras.qualificadores_cargo
-        )
+        (
+            bate_forte,
+            bate_ambiguo,
+            bate_ferramenta,
+            bate_exclusao,
+            senioridade_excluida,
+        ) = self._avaliar_cargo(regras)
 
         bate_keyword = bate_forte or bate_ambiguo or bate_ferramenta
 

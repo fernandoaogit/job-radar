@@ -19,6 +19,7 @@ import pytest
 
 from core.job import Job
 from core.perfis import PERFIL_INTL
+from core.config_intl import TERMOS_BUSCA_INTL
 
 REGRAS = PERFIL_INTL.regras
 
@@ -120,3 +121,10 @@ def test_os_dois_perfis_usam_o_mesmo_mecanismo():
     dois pelo menos usem a MESMA lista de qualificadores."""
     from core.perfis import PERFIL_BR
     assert PERFIL_INTL.regras.qualificadores_dados == PERFIL_BR.regras.qualificadores_dados
+
+
+def test_busca_internacional_nao_pesquisa_cargos_de_dados_removidos():
+    termos = " ".join(TERMOS_BUSCA_INTL).lower()
+    assert "data analyst" not in termos
+    assert "business intelligence" not in termos
+    assert "business analyst" not in termos

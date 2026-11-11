@@ -54,7 +54,7 @@ def cenario(monkeypatch):
     # fim do arquivo.
     monkeypatch.setattr(main, "DIGEST_HORA_UTC", 0)
     monkeypatch.setattr(main, "obter_vagas_pendentes_digest",
-                        lambda p: [("Analista de Dados", "Empresa", "https://x/1", 6, 0)])
+                        lambda p: [("Product Manager", "Empresa", "https://x/1", 6, 0)])
     return estado
 
 
@@ -117,6 +117,37 @@ def test_fila_vazia_marca_o_dia_sem_mandar_mensagem(cenario, monkeypatch):
     _rodar(monkeypatch, hora_utc=1)
     assert cenario["enviadas"] == []
     assert cenario["metadados"]["digest_ultimo_dia_brasil"] == "2026-08-18"
+
+
+def test_cargo_removido_da_config_nao_entra_no_digest(cenario, monkeypatch):
+    monkeypatch.setattr(
+        main,
+        "obter_vagas_pendentes_digest",
+        lambda p: [("Data Analyst / BI Developer", "ACL", "https://x/data", 6, 0)],
+    )
+
+    _rodar(monkeypatch, hora_utc=1)
+
+    assert cenario["enviadas"] == []
+    assert cenario["marcou_enviado"] == ["brasil"]
+
+
+def test_digest_mantem_cargo_atual_e_remove_cargo_antigo(cenario, monkeypatch):
+    monkeypatch.setattr(
+        main,
+        "obter_vagas_pendentes_digest",
+        lambda p: [
+            ("Product Manager", "Empresa", "https://x/product", 7, 0),
+            ("Business Intelligence Specialist", "Empresa", "https://x/bi", 6, 0),
+        ],
+    )
+
+    _rodar(monkeypatch, hora_utc=1)
+
+    assert cenario["enviadas"] == [
+        ("Brasil", [("Product Manager", "Empresa", "https://x/product", 7, 0)])
+    ]
+    assert cenario["marcou_enviado"] == ["brasil"]
 
 
 def test_respeita_hora_configurada_quando_nao_e_zero(cenario, monkeypatch):
