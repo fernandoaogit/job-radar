@@ -24,8 +24,10 @@ on:
   # usuaria. Rodar la nao melhorou busca nenhuma (deu 22 vazias contra 13
   # daqui), e exige o computador ligado -- entao voltou pro automatico.
   # Um lugar por vez, sempre: ver a nota do data/jobs.db acima.
+  # O robô verifica vagas a cada quatro horas e envia alertas pelo Telegram.
+  # O minuto 15 evita iniciar junto ao pico de execuções do GitHub na virada da hora.
   schedule:
-    - cron: "0 */4 * * *"
+    - cron: "15 */4 * * *"
   workflow_dispatch: {}
 
 concurrency:
